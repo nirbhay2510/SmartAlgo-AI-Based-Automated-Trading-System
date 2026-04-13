@@ -1,81 +1,96 @@
-🚀 SmartAlgo – AI-Based Algorithmic Trading System
+# 🚀 SmartAlgo – AI-Based Algorithmic Trading System
+
 SmartAlgo is an intelligent algorithmic trading system that uses Machine Learning to analyze real-time stock market data and automatically generate trading decisions (Buy/Sell/Hold).
 
-📌 Overview
+---
+
+## 📌 Overview
+
 SmartAlgo simulates real-world automated trading by combining:
-Real-time data processing
-Machine learning predictions
-Strategy-based decision making
-Automated trade execution
-Performance tracking dashboard
+- Real-time data processing  
+- Machine learning predictions  
+- Strategy-based decision making  
+- Automated trade execution  
+- Performance tracking dashboard  
 
-✨ Features
-📊 Real-time stock data fetching
-🤖 ML models (LSTM, Random Forest, SVM)
-📈 Buy/Sell/Hold signal generation
-⚙️ Strategy-based trade selection
-💰 Automated trade execution
-🗄️ Trade history storage
-📉 Profit/Loss tracking
-📺 Dashboard visualization
+---
 
-🧠 Tech Stack
-Programming: Python, Flask 
-ML: TensorFlow, Scikit-learn
-Data: Pandas, NumPy
-API: Stock Market API
-Database: SQLite 
-Frontend: HTML, CSS, JS
+## ✨ Features
 
-⚙️ How It Works
-Connects to stock market API
-Fetches real-time data
-Preprocesses data
-Applies ML models
-Generates trading signals
-Selects best signal
-Executes trade
-Stores results
-Updates dashboard
+- 📊 Real-time stock data fetching  
+- 🤖 ML models (LSTM, Random Forest, SVM)  
+- 📈 Buy/Sell/Hold signal generation  
+- ⚙️ Strategy-based trade selection  
+- 💰 Automated trade execution  
+- 🗄️ Trade history storage  
+- 📉 Profit/Loss tracking  
+- 📺 Dashboard visualization  
 
-🏗️Project Structure
+---
+
+## 🧠 Tech Stack
+
+- **Programming:** Python, Flask  
+- **Machine Learning:** TensorFlow, Scikit-learn  
+- **Data Processing:** Pandas, NumPy  
+- **API:** Stock Market API  
+- **Database:** SQLite  
+- **Frontend:** HTML, CSS, JavaScript  
+
+---
+
+## ⚙️ How It Works
+
+1. Connects to stock market API  
+2. Fetches real-time data  
+3. Preprocesses data  
+4. Applies ML models  
+5. Generates trading signals  
+6. Selects best signal  
+7. Executes trade  
+8. Stores results  
+9. Updates dashboard  
+
+---
+
+## 🏗️ Project Structure
+
+```bash
 SMARTALGO/
 │
 ├── src/
-│   ├── app.py                     # Main application (Flask/Dashboard)
-│   ├── ai_models.py               # ML models (LSTM, RF, SVM)
-│   ├── trading_engine.py          # Trade execution logic
-│   ├── strategy_logic.py          # Strategy rules
+│   ├── app.py                        (program runs from here)
+│   ├── ai_models.py
+│   ├── trading_engine.py
+│   ├── strategy_logic.py
 │
-├── database/
-│        ├── database.db            # SQLite database
-│        └── db_handler.py          # DB operations (rename from raw usage)
-│   
-│   
+├── templates/
+│   ├── home.html
+│   ├── login.html
+│   ├── register.html
+│   ├── trade.html
+│   ├── strategy.html
+│   ├── history.html
+│   ├── backtest.html
 │
-
-├── templates/                 # HTML files
-│      ├── home.html
-│      ├── login.html
-│      ├── register.html
-│      ├── trade.html
-│      ├── strategy.html
-│      ├── history.html
-│      ├── backtest.html
-│      ├── options.html
-│      └── options_history.html
-│   
 ├── static/
-│     ├── css/
-│     ├── js/
-│     └── images/
-│           ├── logo.png
-│           ├── background.jpg
-│           └── user.svg
+│   ├── css/
+│   ├── js/
+│   └── images/
+│       ├── logo.png
+│       ├── background.jpg
+│       └── user.svg
+│
+└── database/
+       ├── database.db
+       └── db_handler.py
+```
 
+---
 
-🤝 Contributors
-Ayush Singh
-Naman Kumar
-Kunal Sehrawat
-Nirbhay Sisodia
+## 👨‍💻 Contributors
+
+1. Ayush Singh  
+2. Naman Kumar  
+3. Kunal Sehrawat  
+4. Nirbhay Sisodia
