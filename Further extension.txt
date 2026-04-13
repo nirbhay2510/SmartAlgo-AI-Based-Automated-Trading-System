@@ -1,0 +1,4 @@
+Further extension
+
+Secure password hashing (Register)
+otp integration (mobile/register)

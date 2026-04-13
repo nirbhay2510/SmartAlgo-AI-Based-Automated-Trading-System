@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><title>SmartAlgo – Auto Trade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:url('https://t3.ftcdn.net/jpg/08/89/06/96/240_F_889069646_XTuR4M8GJfeltGTOcUSihJBkWpdPaPCm.jpg') no-repeat center center fixed;background-size:cover;color:#b8b8b8;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;backdrop-filter:blur(8px);z-index:-1}
+.topbar{background:rgba(0,0,0,.92);backdrop-filter:blur(12px);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(112,48,154,.2)}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.topbar-left img{height:38px;width:38px;object-fit:contain;margin-right:16px;filter:drop-shadow(0 0 6px rgba(176,96,240,.4))}
+.nav-sep{color:#383838be;font-size:12px}
+.topbar-left a{color:#909090;text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:4px;transition:.2s}
+.topbar-left a:hover,.topbar-left a.active{color:#fff;background:rgba(112,48,154,.18)}
+.user-menu{position:relative}
+.user-trigger{cursor:pointer;border-radius:50%;padding:2px;border:1px solid transparent;transition:.2s;display:block}
+.user-trigger:hover{border-color:rgba(112,48,154,.4)}
+.user-trigger img{height:28px;width:28px;border-radius:50%;border:1px solid #383838be;display:block}
+.user-dropdown{position:absolute;top:calc(100% + 10px);right:0;min-width:170px;background:rgba(10,10,18,.97);border:1px solid rgba(112,48,154,.25);border-radius:10px;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-6px);transition:.18s;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.user-dropdown::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(176,96,240,.4),transparent)}
+.user-menu:hover .user-dropdown,.user-menu:focus-within .user-dropdown{opacity:1;pointer-events:auto;transform:translateY(0)}
+.dropdown-header{padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
+.dropdown-username{font-family:"DM Mono",monospace;font-size:11px;font-weight:500;color:#d8d8e8}
+.dropdown-label{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#505060;margin-top:2px}
+.dropdown-item{display:block;padding:10px 14px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#909090;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.03);transition:.15s}
+.dropdown-item:last-child{border-bottom:none}
+.dropdown-item:hover{background:rgba(112,48,154,.12);color:#d0d0e0}
+.dropdown-item.danger{color:#906070}
+.dropdown-item.danger:hover{background:rgba(207,80,80,.08);color:#cf7e7e}
+.topbar-divider{height:.8px;background:#383838be}
+.page-header{padding:22px 28px 12px;display:flex;align-items:center;justify-content:space-between}
+.ph-left{display:flex;align-items:center;gap:12px}
+.page-header h2{margin:0;color:#fff;font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-family:"DM Mono",monospace}
+.header-dot{width:6px;height:6px;border-radius:50%;background:#70309a;box-shadow:0 0 8px #70309a;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px #70309a}50%{opacity:.5;box-shadow:0 0 3px #70309a}}
+.live-badge{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;border:1px solid}
+.live-badge.on{background:rgba(126,207,142,.07);border-color:rgba(126,207,142,.3);color:#7ecf8e}
+.live-badge.off{background:rgba(80,80,80,.07);border-color:rgba(80,80,80,.2);color:#555}
+.live-badge .bdot{width:5px;height:5px;border-radius:50%}
+.live-badge.on .bdot{background:#7ecf8e;box-shadow:0 0 6px #7ecf8e;animation:pulse 1.5s infinite}
+.live-badge.off .bdot{background:#444}
+.content{padding:0 28px 28px;display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+.left-col{display:flex;flex-direction:column;gap:14px}
+.right-col{display:flex;flex-direction:column;gap:14px}
+.card{background:rgba(9,9,9,.55);border-radius:12px;border:1px solid rgba(112,48,154,.18);padding:20px;position:relative;overflow:hidden;transition:.3s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(176,96,240,.35),transparent)}
+.card:hover{box-shadow:0 0 20px rgba(112,48,154,.1);border-color:rgba(112,48,154,.26)}
+.card-title{font-family:"DM Mono",monospace;font-size:9.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#707080;margin-bottom:14px}
+.card-divider{height:1px;background:linear-gradient(90deg,rgba(112,48,154,.4),transparent);margin-bottom:16px}
+label{display:block;font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#606070;margin-bottom:7px;margin-top:16px}
+label:first-of-type{margin-top:0}
+select,input[type=number]{width:100%;padding:9px 12px;border:.5px solid #2a2a2a;border-radius:6px;background:#0f0f0f;color:#c8c8c8;font-family:"DM Sans",sans-serif;font-size:12px;outline:none;transition:.2s;appearance:none;-webkit-appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b30d4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select:focus,input:focus{border-color:rgba(112,48,154,.5);box-shadow:0 0 0 2px rgba(112,48,154,.12)}
+
+/* AI PICKER */
+.ai-picker{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
+.ai-spinner{width:38px;height:38px;border:3px solid #1e1e28;border-top:3px solid #70309a;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-status{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#505060;text-align:center}
+.ai-result{font-family:"DM Mono",monospace;font-size:10px;color:#d0d0e0;text-align:center;display:none}
+.ai-badge{display:inline-block;padding:3px 10px;border-radius:12px;background:rgba(112,48,154,.15);border:1px solid rgba(112,48,154,.3);color:#c084fc;font-size:9px;margin:2px}
+
+/* LEADERBOARD */
+.lb-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03);font-family:"DM Mono",monospace;font-size:9px}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{color:#404050;width:16px;flex-shrink:0}
+.lb-name{color:#909090;flex:1;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-score{color:#c084fc;width:36px;text-align:right}
+.lb-row.top .lb-name{color:#d0d0e0}
+.lb-row.top .lb-score{color:#7ecf8e}
+
+/* FORM BUTTONS */
+.btn-start{width:100%;margin-top:20px;padding:13px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;background:#70309a;border:none;border-radius:6px;color:#fff;cursor:pointer;transition:.3s}
+.btn-start:hover{box-shadow:0 0 28px rgba(112,48,154,.5);background:#8040b0}
+.btn-start:disabled{opacity:.4;cursor:not-allowed}
+.btn-stop{width:100%;margin-top:10px;padding:11px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;background:transparent;border:1px solid rgba(180,50,50,.35);border-radius:6px;color:#a05050;cursor:pointer;transition:.3s;text-decoration:none;display:block;text-align:center}
+.btn-stop:hover{background:rgba(180,50,50,.1);border-color:#a83232;color:#cf7e7e}
+
+/* CFG ROWS */
+.cfg-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);font-family:"DM Mono",monospace;font-size:10px}
+.cfg-row:last-child{border-bottom:none}
+.cfg-k{color:#505060}
+.cfg-v{color:#d0d0e0;text-align:right;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* TIMER */
+.timer-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.timer-ring{position:relative;width:120px;height:120px}
+.timer-ring svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:#1e1e28;stroke-width:8}
+.ring-fg{fill:none;stroke:#70309a;stroke-width:8;stroke-linecap:round;stroke-dasharray:345;stroke-dashoffset:0;transition:stroke-dashoffset .5s linear,stroke .5s}
+.timer-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.timer-mm{font-family:"DM Mono",monospace;font-size:26px;font-weight:500;color:#fff;line-height:1}
+.timer-lbl{font-family:"DM Mono",monospace;font-size:7px;letter-spacing:.15em;color:#505060;text-transform:uppercase;margin-top:4px}
+.risk-row{display:flex;justify-content:space-between;font-family:"DM Mono",monospace;font-size:9px;color:#505060;width:100%}
+.risk-val{color:#808080}
+.progress-bar{height:3px;background:#1a1a22;border-radius:2px;overflow:hidden;width:100%}
+.progress-fill{height:100%;background:linear-gradient(90deg,#70309a,#c084fc);border-radius:2px;transition:width .5s linear}
+
+/* TICKER */
+.ticker-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tick{background:rgba(15,15,15,.8);border:.5px solid #202028;border-radius:8px;padding:14px;text-align:center;transition:.2s}
+.tick:hover{border-color:rgba(112,48,154,.3)}
+.tick-lbl{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#505060;margin-bottom:8px}
+.tick-val{font-family:"DM Mono",monospace;font-size:20px;font-weight:500;color:#d8d8e8}
+.tick-val.up{color:#7ecf8e}
+.tick-val.dn{color:#cf7e7e}
+.tick-sub{font-family:"DM Mono",monospace;font-size:10px;color:#505060;margin-top:4px}
+
+/* SIGNALS */
+.sig-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sig-box{background:rgba(15,15,15,.8);border:.5px solid #202028;border-radius:8px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.sig-lbl{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#505060}
+.sig-pill{padding:6px 20px;border-radius:20px;font-family:"DM Mono",monospace;font-size:12px;font-weight:500;letter-spacing:.08em;border:1px solid;min-width:80px;text-align:center}
+.BUY{background:rgba(126,207,142,.1);border-color:rgba(126,207,142,.35);color:#7ecf8e}
+.SELL{background:rgba(207,126,126,.1);border-color:rgba(207,126,126,.35);color:#cf7e7e}
+.HOLD{background:rgba(200,200,100,.07);border-color:rgba(200,200,100,.2);color:#c8c880}
+.NONE{background:rgba(50,50,50,.07);border-color:#252525;color:#404040}
+.sig-sub{font-family:"DM Mono",monospace;font-size:9px;color:#505060}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.feat{background:rgba(12,12,18,.8);border:.5px solid #1a1a22;border-radius:6px;padding:10px 8px;text-align:center}
+.feat-k{font-family:"DM Mono",monospace;font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:#404050;margin-bottom:5px}
+.feat-v{font-family:"DM Mono",monospace;font-size:13px;color:#9090b0}
+
+/* POSITIONS */
+.tbl-wrap{border-radius:8px;overflow:hidden;border:1px solid #1a1a22}
+table{width:100%;border-collapse:collapse}
+thead tr{background:rgba(112,48,154,.1)}
+th{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#606070;padding:11px 14px;text-align:left;border-bottom:1px solid rgba(112,48,154,.2);white-space:nowrap}
+td{padding:12px 14px;font-family:"DM Mono",monospace;font-size:11px;color:#a0a0b0;border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(112,48,154,.07);color:#d0d0e0}
+.td-up{color:#7ecf8e;font-weight:500}
+.td-dn{color:#cf7e7e;font-weight:500}
+
+/* LOG */
+.log-box{background:rgba(6,6,10,.8);border:.5px solid #1a1a22;border-radius:8px;padding:12px;max-height:130px;overflow-y:auto;font-family:"DM Mono",monospace;font-size:10px;line-height:1.9}
+.log-box::-webkit-scrollbar{width:3px}
+.log-box::-webkit-scrollbar-thumb{background:rgba(112,48,154,.3);border-radius:4px}
+.le{color:#404050}.le.buy{color:#7ecf8e}.le.sell{color:#cf7e7e}.le.warn{color:#c8c860}.le.info{color:#6080a0}
+
+/* EMPTY */
+.empty-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:12px;color:#252530;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.ti{padding:10px 18px;border-radius:8px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.06em;border:1px solid;animation:ti-in .3s ease;display:flex;align-items:center;gap:8px;max-width:360px}
+.ti.buy{background:rgba(10,28,15,.93);border-color:rgba(126,207,142,.3);color:#7ecf8e}
+.ti.sell{background:rgba(28,10,10,.93);border-color:rgba(207,126,126,.3);color:#cf7e7e}
+.ti.warn{background:rgba(28,26,10,.93);border-color:rgba(200,200,80,.3);color:#c8c860}
+@keyframes ti-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg-banner{display:flex;align-items:center;gap:10px;padding:10px 28px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.08em;border-bottom:1px solid}
+.msg-banner.ok{background:rgba(126,207,142,.07);border-color:rgba(126,207,142,.2);color:#7ecf8e}
+.msg-banner.err{background:rgba(207,126,126,.07);border-color:rgba(207,126,126,.2);color:#cf7e7e}
+.mdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="{{ url_for('static',filename='images/SA_logo.svg') }}" alt="SmartAlgo">
+    <a href="/">Home</a><span class="nav-sep">|</span>
+    <a href="/strategy">Strategy</a><span class="nav-sep">|</span>
+    <a href="/trade" class="active">Trade</a><span class="nav-sep">|</span>
+    <a href="/backtest">Backtest</a>
+  </div>
+  <div class="user-menu">
+    <div class="user-trigger" tabindex="0">
+      <img src="{{ url_for('static',filename='images/user.svg') }}" alt="User">
+    </div>
+    <div class="user-dropdown">
+      <div class="dropdown-header">
+        <div class="dropdown-username">{{ session.username }}</div>
+        <div class="dropdown-label">Signed in</div>
+      </div>
+      <a href="/history" class="dropdown-item">Trade History</a>
+      <a href="/logout" class="dropdown-item danger">Logout</a>
+    </div>
+  </div>
+</div>
+<div class="topbar-divider"></div>
+
+{% if message %}
+<div class="msg-banner {{ 'ok' if 'stop' not in message|lower else 'err' }}">
+  <div class="mdot"></div><span>{{ message }}</span>
+</div>
+{% endif %}
+
+<div class="page-header">
+  <div class="ph-left">
+    <div class="header-dot"></div>
+    <h2>15-Min Intraday Bot</h2>
+  </div>
+  <div class="live-badge {{ 'on' if session_data else 'off' }}">
+    <div class="bdot"></div>
+    <span>{{ 'SESSION LIVE' if session_data else 'INACTIVE' }}</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- LEFT COL -->
+  <div class="left-col">
+
+    <div class="card">
+      <p class="card-title">{{ 'Active Session' if session_data else 'New Session' }}</p>
+      <div class="card-divider"></div>
+
+      {% if not session_data %}
+      <!-- STEP 1: pick stock + capital; AI auto-selects strategy+model -->
+      <form id="tradeForm" method="POST" action="/start_trading">
+        <label>Stock</label>
+        <select name="stock" id="stockSel" onchange="runAutoSelect()">
+          {% for s in stocks %}<option>{{s}}</option>{% endfor %}
+        </select>
+
+        <!-- AI AUTO-SELECTOR -->
+        <div class="ai-picker" style="margin-top:16px">
+          <div class="ai-spinner" id="aiSpinner"></div>
+          <div class="ai-status" id="aiStatus">Select a stock to auto-analyse</div>
+          <div class="ai-result" id="aiResult"></div>
+        </div>
+
+        <label style="margin-top:16px">Capital (₹)</label>
+        <input type="number" name="capital" id="capitalIn" placeholder="e.g. 50000" min="1000" required>
+
+        <!-- Hidden fields filled by JS -->
+        <input type="hidden" name="strategy" id="hidStrat" value="">
+        <input type="hidden" name="ai_model"  id="hidModel"  value="">
+
+        <button type="submit" class="btn-start" id="startBtn" disabled>
+          Analysing…
+        </button>
+      </form>
+
+      <!-- LEADERBOARD -->
+      <div id="lbWrap" style="margin-top:16px;display:none">
+        <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#404050;margin-bottom:10px">Strategy + AI Rankings</div>
+        <div id="lbList"></div>
+      </div>
+
+      {% else %}
+      <!-- ACTIVE SESSION INFO -->
+      <div>
+        <div class="cfg-row"><span class="cfg-k">Stock</span><span class="cfg-v">{{ session_data['stock'] }}</span></div>
+        <div class="cfg-row"><span class="cfg-k">Strategy</span><span class="cfg-v">{{ session_data['strategy'] }}</span></div>
+        <div class="cfg-row"><span class="cfg-k">AI Model</span><span class="cfg-v">{{ session_data['ai_model'] }}</span></div>
+        <div class="cfg-row"><span class="cfg-k">Capital</span><span class="cfg-v">₹{{ "{:,.0f}".format(session_data['capital']) }}</span></div>
+        <div class="cfg-row"><span class="cfg-k">Started</span><span class="cfg-v">{{ session_data['start_time'] }}</span></div>
+        <div class="cfg-row"><span class="cfg-k">Window</span><span class="cfg-v">{{ hold_minutes }} minutes</span></div>
+      </div>
+      <a href="/stop_trading" class="btn-stop" onclick="return confirm('Stop session? Open positions stay open.')">■ Stop Session</a>
+      {% endif %}
+    </div>
+
+    {% if session_data %}
+    <!-- TIMER -->
+    <div class="card">
+      <p class="card-title">Session Window</p>
+      <div class="card-divider"></div>
+      <div class="timer-wrap">
+        <div class="timer-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="55"/>
+            <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="55"/>
+          </svg>
+          <div class="timer-inner">
+            <div class="timer-mm" id="timerDisp">15:00</div>
+            <div class="timer-lbl">remaining</div>
+          </div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+        <div class="risk-row">
+          <span>SL <span class="risk-val">{{ stop_loss }}%</span></span>
+          <span>Target <span class="risk-val">{{ target }}%</span></span>
+          <span>Exit <span class="risk-val">Auto</span></span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- LOG -->
+    <div class="card">
+      <p class="card-title">Event Log</p>
+      <div class="card-divider"></div>
+      <div class="log-box" id="eventLog">
+        <div class="le info">── SmartAlgo engine ready ──</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COL -->
+  <div class="right-col">
+    {% if not session_data %}
+    <div class="card">
+      <div class="empty-panel">
+        <div style="font-size:42px;opacity:.15">📈</div>
+        <div>No active session</div>
+        <div style="font-size:9px;color:#1e1e28;letter-spacing:.08em">
+          Select a stock — the AI will automatically pick the best strategy and model
+        </div>
+      </div>
+    </div>
+    {% else %}
+
+    <!-- PRICE TICKER -->
+    <div class="card">
+      <p class="card-title">Live Market — {{ session_data['stock'] }}</p>
+      <div class="card-divider"></div>
+      <div class="ticker-row">
+        <div class="tick">
+          <div class="tick-lbl">Current Price</div>
+          <div class="tick-val" id="livePrice">—</div>
+          <div class="tick-sub" id="liveChg">Loading…</div>
+        </div>
+        <div class="tick">
+          <div class="tick-lbl">Capital</div>
+          <div class="tick-val">₹{{ "{:,.0f}".format(session_data['capital']) }}</div>
+          <div class="tick-sub">Session budget</div>
+        </div>
+        <div class="tick">
+          <div class="tick-lbl">Unrealised P&amp;L</div>
+          <div class="tick-val" id="uPnl">—</div>
+          <div class="tick-sub" id="uPnlPct">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNALS -->
+    <div class="card">
+      <p class="card-title">Signal Analysis</p>
+      <div class="card-divider"></div>
+      <div class="sig-row">
+        <div class="sig-box">
+          <div class="sig-lbl">Strategy</div>
+          <div class="sig-pill NONE" id="sigStrat">—</div>
+          <div class="sig-sub">{{ session_data['strategy'][:24] if session_data['strategy'] else '—' }}</div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-lbl">AI / ML Model</div>
+          <div class="sig-pill NONE" id="sigAI">—</div>
+          <div class="sig-sub" id="aiConf">Confidence —</div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-lbl">Final Decision</div>
+          <div class="sig-pill NONE" id="sigFinal">—</div>
+          <div class="sig-sub" id="aiAcc">Accuracy —</div>
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#303040;margin-bottom:10px">Technical Indicators</div>
+        <div class="feat-grid">
+          <div class="feat"><div class="feat-k">RSI</div><div class="feat-v" id="fRsi">—</div></div>
+          <div class="feat"><div class="feat-k">MACD</div><div class="feat-v" id="fMacd">—</div></div>
+          <div class="feat"><div class="feat-k">SMA 5</div><div class="feat-v" id="fSma5">—</div></div>
+          <div class="feat"><div class="feat-k">SMA 10</div><div class="feat-v" id="fSma10">—</div></div>
+          <div class="feat"><div class="feat-k">Vol ×</div><div class="feat-v" id="fVol">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPEN POSITIONS -->
+    <div class="card">
+      <p class="card-title">Open Positions</p>
+      <div class="card-divider"></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Stock</th><th>Qty</th><th>Buy ₹</th><th>Live ₹</th><th>P&amp;L ₹</th><th>P&amp;L %</th><th>Held</th></tr></thead>
+          <tbody id="posTbody">
+            <tr><td colspan="7" style="text-align:center;color:#252530;padding:22px">No open positions</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   AUTO-SELECT  (inactive session only)
+══════════════════════════════════════════════════════ */
+{% if not session_data %}
+let autoSelectDone = false;
+
+async function runAutoSelect() {
+  const stock   = document.getElementById('stockSel').value;
+  const spinner = document.getElementById('aiSpinner');
+  const status  = document.getElementById('aiStatus');
+  const result  = document.getElementById('aiResult');
+  const startBtn= document.getElementById('startBtn');
+  const lbWrap  = document.getElementById('lbWrap');
+  const lbList  = document.getElementById('lbList');
+
+  autoSelectDone = false;
+  startBtn.disabled = true;
+  startBtn.textContent = 'Analysing…';
+  spinner.style.display = 'block';
+  status.textContent    = 'Running backtest on all combinations…';
+  result.style.display  = 'none';
+  lbWrap.style.display  = 'none';
+
+  try {
+    const r = await fetch('/api/best_combo?stock=' + encodeURIComponent(stock));
+    const d = await r.json();
+
+    spinner.style.display = 'none';
+    document.getElementById('hidStrat').value = d.best_strategy;
+    document.getElementById('hidModel').value  = d.best_model;
+
+    status.textContent   = 'Best combination found:';
+    result.innerHTML     =
+      '<span class="ai-badge">' + d.best_strategy + '</span>' +
+      '<span class="ai-badge">' + d.best_model + '</span>';
+    result.style.display = 'block';
+
+    // Leaderboard
+    if (d.leaderboard && d.leaderboard.length) {
+      lbList.innerHTML = d.leaderboard.map((r,i) =>
+        `<div class="lb-row ${i===0?'top':''}">
+          <span class="lb-rank">#${i+1}</span>
+          <span class="lb-name">${r.strategy.substring(0,18)} / ${r.model}</span>
+          <span class="lb-score">${r.score.toFixed(1)}</span>
+        </div>`
+      ).join('');
+      lbWrap.style.display = 'block';
+    }
+
+    startBtn.disabled     = false;
+    startBtn.textContent  = '▶  Start 15-Min Session';
+    autoSelectDone        = true;
+
+  } catch(e) {
+    spinner.style.display = 'none';
+    status.textContent    = 'Analysis failed — using defaults';
+    document.getElementById('hidStrat').value = 'Moving Average Crossover';
+    document.getElementById('hidModel').value  = 'Random Forest';
+    startBtn.disabled    = false;
+    startBtn.textContent = '▶  Start 15-Min Session';
+  }
+}
+
+// Run on page load for default stock
+window.addEventListener('DOMContentLoaded', runAutoSelect);
+{% endif %}
+
+
+/* ══════════════════════════════════════════════════════
+   LIVE SESSION  (active session only)
+══════════════════════════════════════════════════════ */
+{% if session_data %}
+const HOLD_SEC   = {{ hold_minutes }} * 60;
+const START_TIME = new Date("{{ session_data['start_time'] }}".replace(' ','T'));
+const STOCK      = "{{ session_data['stock'] }}";
+const CIRC       = 2 * Math.PI * 55;
+let lastCycle    = 0;
+let sessionEnded = false;
+
+/* TIMER */
+function tick() {
+  const elapsed   = (Date.now() - START_TIME.getTime()) / 1000;
+  const remaining = Math.max(0, HOLD_SEC - elapsed);
+  const pct       = Math.min(1, elapsed / HOLD_SEC);
+  const m = String(Math.floor(remaining/60)).padStart(2,'0');
+  const s = String(Math.floor(remaining%60)).padStart(2,'0');
+  document.getElementById('timerDisp').textContent = m+':'+s;
+  const ring = document.getElementById('ringFg');
+  ring.style.strokeDashoffset = CIRC * pct;
+  ring.style.stroke = remaining>HOLD_SEC*.5?'#70309a':remaining>HOLD_SEC*.2?'#c07020':'#a03030';
+  document.getElementById('progFill').style.width = (pct*100).toFixed(1)+'%';
+  if (remaining <= 0 && !sessionEnded) {
+    sessionEnded = true;
+    log('⏱ 15-min window closed — forcing exit', 'warn');
+    toast('Session window closed. Auto-selling all positions.','warn');
+  }
+}
+setInterval(tick, 500); tick();
+
+/* STATUS POLL */
+async function pollStatus() {
+  try {
+    const r = await fetch('/api/session_status');
+    const d = await r.json();
+    if (!d.active) return;
+
+    const pe = document.getElementById('livePrice');
+    pe.textContent = '₹'+d.price.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    pe.className   = 'tick-val '+(d.change>=0?'up':'dn');
+    document.getElementById('liveChg').textContent = (d.change>=0?'+':'')+d.change+'% today';
+
+    setSig('sigStrat', d.strat_signal);
+    setSig('sigAI',    d.ai_signal);
+    setSig('sigFinal', d.final_signal);
+    document.getElementById('aiConf').textContent = 'Confidence '+d.ai_confidence+'%';
+    document.getElementById('aiAcc').textContent  = 'Accuracy '+d.ai_accuracy+'%';
+
+    const f=d.ai_features||{};
+    set('fRsi',f['RSI']); set('fMacd',f['MACD']);
+    set('fSma5',f['SMA5']); set('fSma10',f['SMA10']); set('fVol',f['Vol Ratio']);
+
+    /* positions */
+    const tb = document.getElementById('posTbody');
+    if (d.positions && d.positions.length) {
+      let tot=0;
+      tb.innerHTML = d.positions.map(p=>{
+        tot+=p.pnl;
+        const cls=p.pnl>=0?'td-up':'td-dn';
+        return `<tr><td>${STOCK}</td><td>${p.qty}</td><td>₹${p.buy_price.toFixed(2)}</td>
+          <td>₹${d.price.toFixed(2)}</td>
+          <td class="${cls}">${p.pnl>=0?'+':''}₹${p.pnl.toFixed(2)}</td>
+          <td class="${cls}">${p.pnl_pct>=0?'+':''}${p.pnl_pct.toFixed(2)}%</td>
+          <td>${p.held_min}m</td></tr>`;
+      }).join('');
+      const up=document.getElementById('uPnl');
+      up.textContent=(tot>=0?'+':'')+'₹'+tot.toFixed(2);
+      up.className='tick-val '+(tot>=0?'up':'dn');
+      const ap=d.positions.reduce((a,p)=>a+p.pnl_pct,0)/d.positions.length;
+      document.getElementById('uPnlPct').textContent=(ap>=0?'+':'')+ap.toFixed(2)+'%';
+    } else {
+      tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#252530;padding:22px">No open positions</td></tr>';
+      document.getElementById('uPnl').textContent='₹0.00';
+      document.getElementById('uPnlPct').textContent='—';
+    }
+  } catch(e){ log('Poll error: '+e,'warn'); }
+}
+
+/* EXECUTE CYCLE */
+async function runCycle() {
+  const now=Date.now();
+  if (now-lastCycle<25000) return;
+  lastCycle=now;
+  try {
+    const r=await fetch('/api/execute_cycle',{method:'POST'});
+    const d=await r.json();
+    (d.actions||[]).forEach(a=>{
+      if (a.action==='BUY'){
+        toast(`✅ BUY  ${STOCK}  Qty:${a.qty}  @₹${a.price.toFixed(2)}  Conf:${a.confidence}%`,'buy');
+        log(`BUY — ${a.qty}×${STOCK} @ ₹${a.price.toFixed(2)}  (conf ${a.confidence}%)`,'buy');
+      } else if (a.action==='SELL'){
+        const s=a.pnl>=0?'+':'';
+        toast(`💰 SELL  ${STOCK}  P&L: ${s}₹${a.pnl}  [${a.reason}]`,a.pnl>=0?'buy':'sell');
+        log(`SELL — ${a.reason} — P&L ${s}₹${a.pnl}`,a.pnl>=0?'buy':'sell');
+        if (a.reason==='TIME_EXIT') setTimeout(()=>location.href='/trade?message=Session complete',2500);
+      }
+    });
+  } catch(e){ log('Cycle error: '+e,'warn'); }
+}
+
+function setSig(id,val){const el=document.getElementById(id);el.textContent=val||'—';el.className='sig-pill '+(val||'NONE');}
+function set(id,val){const el=document.getElementById(id);if(el)el.textContent=(val!=null)?val:'—';}
+function log(msg,cls='info'){const b=document.getElementById('eventLog');const t=new Date().toLocaleTimeString('en-IN',{hour12:false});const d=document.createElement('div');d.className='le '+cls;d.textContent='['+t+'] '+msg;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function toast(msg,type='warn'){const c=document.getElementById('toast');const t=document.createElement('div');t.className='ti '+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),5000);}
+
+log('Session active — '+STOCK,'info');
+pollStatus(); runCycle();
+setInterval(pollStatus,15000);
+setInterval(runCycle,  30000);
+{% endif %}
+</script>
+</body>
+</html>

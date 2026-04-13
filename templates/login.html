@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://t3.ftcdn.net/jpg/08/89/06/96/240_F_889069646_XTuR4M8GJfeltGTOcUSihJBkWpdPaPCm.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: "DM Sans", "Gill Sans", sans-serif;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(8px);
+            background: rgba(105, 105, 105, 0.315);
+            z-index: -2;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(139,92,246,0.04) 2px, transparent 1px),
+                linear-gradient(90deg, rgba(139,92,246,0.04) 2px, transparent 1px);
+            background-size: 100px 100px;
+            z-index: -1;
+        }
+
+        .login-container {
+            background: rgba(9, 9, 9, 0.55);
+            opacity: 1;
+            padding: 40px;
+            border-radius: 14px;
+            border: 1px solid rgba(112, 48, 154, 0.22);
+            box-shadow: 0 0 32px rgba(112,48,154,0.12);
+            text-align: center;
+            color: #b8b8b8;
+            width: 350px;
+            z-index: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(176,96,240,0.45), transparent);
+        }
+
+        .logo {
+            margin-bottom: 0px;
+        }
+
+        .logo img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(176,96,240,0.4));
+        }
+
+        .login-container h2 {
+            margin-top: 0px;
+            margin-bottom: 25px;
+            color: #909090;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 0.8px;
+            background: linear-gradient(90deg, transparent, #70309a, transparent);
+            margin-bottom: 25px;
+        }
+
+        .login-container label {
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            font-weight: 500;
+            color: #606070;
+            display: block;
+            text-align: left;
+            width: 100%;
+            padding-top: 12px;
+            letter-spacing: 0.14em;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 10px 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            font-family: "DM Sans", sans-serif;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+
+        .login-container input {
+            border: 0.5px solid #2a2a2a;
+            background: #0f0f0f;
+            color: #c8c8c8;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .login-container input:focus {
+            border-color: rgba(112,48,154,0.5);
+            box-shadow: 0 0 0 2px rgba(112,48,154,0.15);
+        }
+
+        .login-container button {
+            width: 100%;
+            margin-top: 40px;
+            margin-bottom: 8px;
+            padding: 12px;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            font-weight: 500;
+            background: #70309a;
+            border: none;
+            border-radius: 6px;
+            color: #fffefe;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .login-container button:hover {
+            box-shadow: 0 0 28px rgba(112,48,154,0.5);
+            background: #8040b0;
+        }
+
+        .login-container a {
+            color: #9040c0;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .login-container a:hover {
+            color: #b060e0;
+            text-decoration: underline;
+        }
+
+        .login-container p {
+            font-size: 11px;
+            font-weight: 400;
+            color: #606070;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="login-container">
+
+        <div class="logo"><img src="{{ url_for('static', filename='images/SA_logo.svg') }}" alt="SmartAlgo"></div>
+
+
+        <h2>Sign in to your account</h2>
+
+        <div class="divider"></div>
+        <form method="POST">
+            <label for="username">Username</label>
+            <input type="text" name="username" placeholder="Username" required><br>
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="••••••••" required><br>
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="/register">Create one</a></p>
+    </div>
+</body>
+</html>

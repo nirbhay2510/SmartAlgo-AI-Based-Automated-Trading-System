@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><title>SmartAlgo – Trade History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:url('https://t3.ftcdn.net/jpg/08/89/06/96/240_F_889069646_XTuR4M8GJfeltGTOcUSihJBkWpdPaPCm.jpg') no-repeat center center fixed;background-size:cover;color:#b8b8b8;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;backdrop-filter:blur(8px);z-index:-1}
+.topbar{background:rgba(0,0,0,.92);backdrop-filter:blur(12px);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(112,48,154,.2)}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.topbar-left img{height:38px;width:38px;object-fit:contain;margin-right:16px;filter:drop-shadow(0 0 6px rgba(176,96,240,.4))}
+.nav-sep{color:#383838be;font-size:12px}
+.topbar-left a{color:#909090;text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:4px;transition:.2s}
+.topbar-left a:hover,.topbar-left a.active{color:#fff;background:rgba(112,48,154,.18)}
+.user-menu{position:relative}
+.user-trigger{cursor:pointer;border-radius:50%;border:1px solid transparent;transition:.2s;display:block}
+.user-trigger:hover{border-color:rgba(112,48,154,.4)}
+.user-trigger img{height:28px;width:28px;border-radius:50%;border:1px solid #383838be;display:block}
+.user-dropdown{position:absolute;top:calc(100% + 10px);right:0;min-width:170px;background:rgba(10,10,18,.97);border:1px solid rgba(112,48,154,.25);border-radius:10px;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-6px);transition:.18s;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.user-dropdown::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(176,96,240,.4),transparent)}
+.user-menu:hover .user-dropdown,.user-menu:focus-within .user-dropdown{opacity:1;pointer-events:auto;transform:translateY(0)}
+.dropdown-header{padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
+.dropdown-username{font-family:"DM Mono",monospace;font-size:11px;font-weight:500;color:#d8d8e8}
+.dropdown-label{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#505060;margin-top:2px}
+.dropdown-item{display:block;padding:10px 14px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#909090;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.03);transition:.15s}
+.dropdown-item:last-child{border-bottom:none}
+.dropdown-item:hover{background:rgba(112,48,154,.12);color:#d0d0e0}
+.dropdown-item.danger{color:#906070}
+.dropdown-item.danger:hover{background:rgba(207,80,80,.08);color:#cf7e7e}
+.topbar-divider{height:.8px;background:#383838be}
+.page-header{padding:22px 28px 12px;display:flex;align-items:center;gap:12px}
+.page-header h2{margin:0;color:#fff;font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-family:"DM Mono",monospace}
+.header-dot{width:6px;height:6px;border-radius:50%;background:#70309a;box-shadow:0 0 8px #70309a;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px #70309a}50%{opacity:.5;box-shadow:0 0 3px #70309a}}
+.content{padding:0 28px 28px;display:flex;flex-direction:column;gap:18px}
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat-card{background:rgba(9,9,9,.55);border-radius:10px;border:1px solid rgba(112,48,154,.18);padding:16px 18px;position:relative;overflow:hidden;transition:.3s}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(176,96,240,.35),transparent)}
+.stat-card:hover{border-color:rgba(112,48,154,.3)}
+.stat-lbl{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#505060;margin-bottom:10px}
+.stat-val{font-family:"DM Mono",monospace;font-size:22px;font-weight:500;color:#d8d8e8}
+.stat-val.up{color:#7ecf8e}
+.stat-val.dn{color:#cf7e7e}
+.stat-sub{font-family:"DM Mono",monospace;font-size:9px;color:#505060;margin-top:5px}
+/* TABLE CARD */
+.card{background:rgba(9,9,9,.55);border-radius:12px;border:1px solid rgba(112,48,154,.18);padding:20px;position:relative;overflow:hidden;transition:.3s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(176,96,240,.35),transparent)}
+.card:hover{box-shadow:0 0 20px rgba(112,48,154,.12);border-color:rgba(112,48,154,.28)}
+.card-title{font-family:"DM Mono",monospace;font-size:9.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#707080;margin-bottom:14px}
+.card-divider{height:1px;background:linear-gradient(90deg,rgba(112,48,154,.4),transparent);margin-bottom:18px}
+.tbl-wrap{border-radius:8px;overflow:hidden;border:1px solid #1a1a22}
+table{width:100%;border-collapse:collapse}
+thead tr{background:rgba(112,48,154,.1)}
+th{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#606070;padding:11px 14px;text-align:left;border-bottom:1px solid rgba(112,48,154,.2);white-space:nowrap}
+td{padding:12px 14px;font-family:"DM Mono",monospace;font-size:11px;color:#a0a0b0;border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(112,48,154,.07);color:#d0d0e0}
+.td-up{color:#7ecf8e;font-weight:500}
+.td-dn{color:#cf7e7e;font-weight:500}
+.td-stock{color:#d0d0e0;font-weight:500}
+.td-time{color:#505060;font-size:10px}
+.empty-state{padding:48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-title{font-family:"DM Mono",monospace;font-size:10px;color:#2a2a3a;letter-spacing:.12em;text-transform:uppercase}
+.empty-btn{padding:7px 20px;font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#9040c0;background:rgba(112,48,154,.1);border:1px solid rgba(112,48,154,.25);border-radius:6px;text-decoration:none;transition:.2s;display:inline-block;margin-top:4px}
+.empty-btn:hover{background:rgba(112,48,154,.2);border-color:#70309a;color:#c084fc}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="{{ url_for('static',filename='images/SA_logo.svg') }}" alt="SmartAlgo">
+    <a href="/">Home</a><span class="nav-sep">|</span>
+    <a href="/strategy">Strategy</a><span class="nav-sep">|</span>
+    <a href="/trade">Trade</a><span class="nav-sep">|</span>
+    <a href="/backtest">Backtest</a>
+  </div>
+  <div class="user-menu">
+    <div class="user-trigger" tabindex="0">
+      <img src="{{ url_for('static',filename='images/user.svg') }}" alt="User">
+    </div>
+    <div class="user-dropdown">
+      <div class="dropdown-header">
+        <div class="dropdown-username">{{ session.username }}</div>
+        <div class="dropdown-label">Signed in</div>
+      </div>
+      <a href="/history" class="dropdown-item active">Trade History</a>
+      <a href="/logout" class="dropdown-item danger">Logout</a>
+    </div>
+  </div>
+</div>
+<div class="topbar-divider"></div>
+
+<div class="page-header">
+  <div class="header-dot"></div>
+  <h2>Trade History</h2>
+</div>
+
+<div class="content">
+
+  <!-- STATS SUMMARY -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-lbl">Total P&amp;L</div>
+      <div class="stat-val {{ 'up' if total_pnl >= 0 else 'dn' }}">
+        {{ ('+' if total_pnl >= 0 else '') }}₹{{ "{:,.2f}".format(total_pnl) }}
+      </div>
+      <div class="stat-sub">All-time realised</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Win Rate</div>
+      <div class="stat-val {{ 'up' if win_rate >= 50 else 'dn' }}">{{ win_rate }}%</div>
+      <div class="stat-sub">{{ wins }}W / {{ losses }}L</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Total Trades</div>
+      <div class="stat-val">{{ history|length }}</div>
+      <div class="stat-sub">Completed positions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Best Trade</div>
+      {% set best = history|selectattr('profit')|list %}
+      {% if best %}
+        {% set bval = best|map(attribute='profit')|list|max %}
+        <div class="stat-val up">+₹{{ "{:,.2f}".format(bval) }}</div>
+      {% else %}
+        <div class="stat-val">—</div>
+      {% endif %}
+      <div class="stat-sub">Highest single trade</div>
+    </div>
+  </div>
+
+  <!-- TRADE TABLE -->
+  <div class="card">
+    <p class="card-title">All Completed Trades</p>
+    <div class="card-divider"></div>
+
+    {% if history %}
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Stock</th><th>Qty</th><th>Buy ₹</th><th>Sell ₹</th>
+          <th>P&amp;L ₹</th><th>Strategy</th><th>AI Model</th>
+          <th>Buy Time</th><th>Sell Time</th>
+        </tr></thead>
+        <tbody>
+        {% for t in history %}
+        <tr>
+          <td class="td-stock">{{ t[0] }}</td>
+          <td>{{ t[1] }}</td>
+          <td>₹{{ "%.2f"|format(t[2]|float) }}</td>
+          <td>₹{{ "%.2f"|format(t[3]|float) }}</td>
+          <td class="{{ 'td-up' if t[4] and t[4]|float >= 0 else 'td-dn' }}">
+            {{ '+' if t[4] and t[4]|float >= 0 else '' }}₹{{ "%.2f"|format(t[4]|float) if t[4] else '0.00' }}
+          </td>
+          <td>{{ t[5] or '—' }}</td>
+          <td>{{ t[6] or '—' }}</td>
+          <td class="td-time">{{ t[7] }}</td>
+          <td class="td-time">{{ t[8] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div style="font-size:36px;opacity:.2">📋</div>
+      <div class="empty-title">No trades yet</div>
+      <a href="/trade" class="empty-btn">Start Trading →</a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>

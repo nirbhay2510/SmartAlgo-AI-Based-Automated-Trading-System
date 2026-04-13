@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartAlgo - Strategy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "DM Sans", "Gill Sans", sans-serif;
+            background: url('https://t3.ftcdn.net/jpg/08/89/06/96/240_F_889069646_XTuR4M8GJfeltGTOcUSihJBkWpdPaPCm.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #b8b8b8;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0);
+            z-index: -1;
+        }
+
+        .topbar {
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(12px);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 52px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(112,48,154,0.2);
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 8px; }
+
+        .topbar-left img {
+            height: 38px; width: 38px;
+            object-fit: contain;
+            margin-right: 16px;
+            filter: drop-shadow(0 0 6px rgba(176,96,240,0.4));
+        }
+
+        .nav-sep { color: #383838be; font-size: 12px; opacity: 0.8; }
+
+        .topbar-left a {
+            color: #909090;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .topbar-left a:hover, .topbar-left a.active {
+            color: #fff;
+            background: rgba(112,48,154,0.18);
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .topbar-right img { height: 28px; border-radius: 50%; border: 1px solid #383838be; }
+
+        .topbar-right a {
+            color: #909090;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 0.5px solid #2e2e2e;
+            transition: 0.2s;
+        }
+
+        .topbar-right a:hover { box-shadow: 0 0 10px #70309a55; color: #fff; border-color: #70309a; }
+
+        .topbar-divider { height: 0.8px; background: #383838be; }
+
+        .page-header {
+            padding: 22px 28px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+        }
+
+        .header-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #70309a;
+            box-shadow: 0 0 8px #70309a;
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+            0%,100% { opacity: 1; box-shadow: 0 0 8px #70309a; }
+            50%      { opacity: 0.5; box-shadow: 0 0 3px #70309a; }
+        }
+
+        .content {
+            display: flex;
+            gap: 50px;
+            padding: 20px 28px 28px;
+        }
+
+        .strategies-panel { flex: 1 1 67%; }
+        .form-panel { flex: 1 1 33%; }
+
+        .card {
+            background: rgba(9,9,9,0.55);
+            border-radius: 12px;
+            border: 1px solid rgba(112,48,154,0.18);
+            padding: 20px;
+            height: 100%;
+            transition: box-shadow 0.3s, border-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(176,96,240,0.35), transparent);
+        }
+
+        .card:hover { box-shadow: 0 0 20px rgba(112,48,154,0.15); border-color: rgba(112,48,154,0.32); }
+
+        .card-title {
+            font-family: "DM Mono", monospace;
+            font-size: 9.5px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #707080;
+            margin: 0 0 14px 0;
+        }
+
+        .card-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(112,48,154,0.4), transparent);
+            margin-bottom: 20px;
+        }
+
+        /* ── TABLE ── */
+        .table-wrap {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #1e1e28;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        table thead tr { background: rgba(112,48,154,0.1); }
+
+        table th {
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #606070;
+            padding: 11px 14px;
+            text-align: left;
+            border-bottom: 1px solid rgba(112,48,154,0.2);
+        }
+
+        table th:last-child { text-align: center; }
+
+        table td {
+            padding: 13px 14px;
+            font-family: "DM Mono", monospace;
+            font-size: 11px;
+            color: #a0a0b0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle;
+        }
+
+        table tbody tr:last-child td { border-bottom: none; }
+
+        table tbody tr:hover td {
+            background: rgba(112,48,154,0.07);
+            color: #d0d0e0;
+        }
+
+        .td-name { color: #d0d0e0; font-weight: 500; }
+
+        .td-logic {
+            color: #707080;
+            font-size: 10px;
+            max-width: 340px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .td-action { text-align: center; }
+
+        .empty-row td {
+            color: #383840;
+            font-size: 10px;
+            padding: 32px 14px;
+            letter-spacing: 0.1em;
+            text-align: center;
+            text-transform: uppercase;
+            border-bottom: none;
+        }
+
+        /* Delete button */
+        .btn-delete {
+            padding: 5px 14px;
+            font-family: "DM Mono", monospace;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: transparent;
+            border: 0.5px solid #2e2e2e;
+            border-radius: 4px;
+            color: #606070;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: rgba(207,80,80,0.08);
+            border-color: rgba(207,80,80,0.35);
+            color: #cf7e7e;
+            box-shadow: none;
+        }
+
+        /* ── FORM ── */
+        label {
+            display: block;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            color: #606070;
+            padding-top: 12px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 9px 12px;
+            border: 0.5px solid #2a2a2a;
+            border-radius: 6px;
+            background: #0f0f0f;
+            color: #c8c8c8;
+            font-family: "DM Sans", sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.03em;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]:focus {
+            border-color: rgba(112,48,154,0.5);
+            box-shadow: 0 0 0 2px rgba(112,48,154,0.15);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 0.5px solid #2a2a2a;
+            border-radius: 6px;
+            background: #0f0f0f;
+            color: #c8c8c8;
+            font-family: "DM Sans", sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.03em;
+            outline: none;
+            resize: vertical;
+            min-height: 130px;
+            line-height: 1.6;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            border-color: rgba(112,48,154,0.5);
+            box-shadow: 0 0 0 2px rgba(112,48,154,0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            font-weight: 500;
+            background: #70309a;
+            border: none;
+            border-radius: 6px;
+            color: #fffefe;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 0 28px rgba(112,48,154,0.5);
+            background: #8040b0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <img src="{{ url_for('static', filename='images/SA_logo.svg') }}" alt="SmartAlgo">
+            <a href="/">Home</a>
+            <span class="nav-sep">|</span>
+            <a href="/strategy" class="active">Strategy</a>
+            <span class="nav-sep">|</span>
+            <a href="/trade">Trade</a>
+            <span class="nav-sep">|</span>
+            <a href="/backtest">Backtest</a>
+        </div>
+        <div class="topbar-right">
+            <img src="{{ url_for('static', filename='images/user.svg') }}" alt="User profile">
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    <div class="topbar-divider"></div>
+
+    <div class="page-header">
+        <div class="header-dot"></div>
+        <h2>Strategy</h2>
+    </div>
+
+    <div class="content">
+
+        <div class="strategies-panel">
+            <div class="card">
+                <p class="card-title">Available Strategies</p>
+                <div class="card-divider"></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Logic</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in strategies %}
+                            <tr>
+                                <td class="td-name">{{ s[1] }}</td>
+                                <td class="td-logic">{{ s[2] }}</td>
+                                <td class="td-action">
+                                    <form method="POST" action="/delete_strategy">
+                                        <input type="hidden" name="id" value="{{ s[0] }}">
+                                        <button type="submit" class="btn-delete"
+                                            onclick="return confirm('Delete this strategy?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% if not strategies %}
+                            <tr class="empty-row">
+                                <td colspan="3">No strategies added yet</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <div class="card">
+                <p class="card-title">Add New Strategy</p>
+                <div class="card-divider"></div>
+                <form method="POST">
+                    <label for="name">Strategy Name</label>
+                    <input type="text" name="name" id="name" placeholder="e.g. Moving Average Crossover" required>
+
+                    <label for="logic">Strategy Logic</label>
+                    <textarea name="logic" id="logic" placeholder="Describe your strategy logic here..." required></textarea>
+
+                    <button type="submit" class="btn-submit">Add Strategy</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

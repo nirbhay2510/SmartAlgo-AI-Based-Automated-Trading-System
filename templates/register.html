@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://t3.ftcdn.net/jpg/08/89/06/96/240_F_889069646_XTuR4M8GJfeltGTOcUSihJBkWpdPaPCm.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: "DM Sans", "Gill Sans", sans-serif;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(8px);
+            background: rgba(105, 105, 105, 0.315);
+            z-index: -2;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(139,92,246,0.04) 2px, transparent 1px),
+                linear-gradient(90deg, rgba(139,92,246,0.04) 2px, transparent 1px);
+            background-size: 100px 100px;
+            z-index: -1;
+        }
+
+        .register-container {
+            background: rgba(9, 9, 9, 0.55);
+            opacity: 1;
+            padding: 5px 40px;
+            border-radius: 14px;
+            border: 1px solid rgba(112, 48, 154, 0.22);
+            box-shadow: 0 0 32px rgba(112,48,154,0.12);
+            text-align: center;
+            color: #b8b8b8;
+            width: 350px;
+            z-index: 0;
+            max-height: 97vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(176,96,240,0.45), transparent);
+        }
+
+        .logo {
+            padding-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        .logo img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(176,96,240,0.4));
+        }
+
+        .register-container h2 {
+            margin-bottom: 18px;
+            color: #909090;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 0.8px;
+            background: linear-gradient(90deg, transparent, #70309a, transparent);
+            margin-bottom: 25px;
+        }
+
+        .register-container label {
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            font-weight: 500;
+            color: #606070;
+            display: block;
+            text-align: left;
+            width: 100%;
+            padding-top: 6px;
+            letter-spacing: 0.14em;
+        }
+
+        .register-container input {
+            width: 100%;
+            padding: 9px 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            font-family: "DM Sans", sans-serif;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+
+        .register-container input {
+            border: 0.5px solid #2a2a2a;
+            background: #0f0f0f;
+            color: #c8c8c8;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .register-container input:focus {
+            border-color: rgba(112,48,154,0.5);
+            box-shadow: 0 0 0 2px rgba(112,48,154,0.15);
+        }
+
+        .register-container input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
+            cursor: pointer;
+        }
+
+        .register-container button {
+            width: 100%;
+            margin-top: 35px;
+            margin-bottom: 0px;
+            padding: 12px;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            font-weight: 500;
+            background: #70309a;
+            border: none;
+            border-radius: 6px;
+            color: #fffefe;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .register-container button:hover {
+            box-shadow: 0 0 28px rgba(112,48,154,0.5);
+            background: #8040b0;
+        }
+
+        .register-container a {
+            color: #9040c0;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .register-container a:hover {
+            color: #b060e0;
+            text-decoration: underline;
+        }
+
+        .register-container p {
+            font-size: 11px;
+            font-weight: 400;
+            color: #606070;
+            margin-top: 16px;
+        }
+
+        /* Scrollbar */
+        .register-container::-webkit-scrollbar { width: 3px; }
+        .register-container::-webkit-scrollbar-track { background: transparent; }
+        .register-container::-webkit-scrollbar-thumb { background: rgba(112,48,154,0.3); border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="register-container">
+
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/SA_logo.svg') }}" alt="SmartAlgo">
+        </div>
+
+        <h2>Create your account</h2>
+
+        <div class="divider"></div>
+
+        <form method="POST">
+            <label for="first_name">First Name</label>
+            <input type="text" name="first_name" placeholder="First Name" required><br>
+
+            <label for="last_name">Last Name</label>
+            <input type="text" name="last_name" placeholder="Last Name" required><br>
+
+            <label for="dob">Date of Birth</label>
+            <input type="date" name="dob" required><br>
+
+            <label for="username">Username</label>
+            <input type="text" name="username" placeholder="Username" required><br>
+
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="••••••••" required><br>
+
+            <label for="mobile">Mobile Number</label>
+            <input type="tel" name="mobile" placeholder="Mobile Number" required><br>
+
+            <label for="email">Email (Optional)</label>
+            <input type="email" name="email" placeholder="email@example.com"><br>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p>Already have an account? <a href="/login">Sign in</a></p>
+    </div>
+</body>
+</html>

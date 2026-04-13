@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartAlgo - Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "DM Sans", sans-serif;
+            background: url('https://t3.ftcdn.net/jpg/08/89/06/96/240_F_889069646_XTuR4M8GJfeltGTOcUSihJBkWpdPaPCm.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #b8b8b8;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            backdrop-filter: blur(8px);
+            z-index: -1;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(12px);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 52px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(112,48,154,0.2);
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 8px; }
+
+        .topbar-left img {
+            height: 38px; width: 38px;
+            object-fit: contain;
+            margin-right: 16px;
+            filter: drop-shadow(0 0 6px rgba(176,96,240,0.4));
+        }
+
+        .nav-sep { color: #383838be; font-size: 12px; }
+
+        .topbar-left a {
+            color: #909090;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .topbar-left a:hover { color: #fff; background: rgba(112,48,154,0.18); }
+
+        /* ── USER DROPDOWN ── */
+        .user-menu { position: relative; }
+
+        .user-trigger {
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 2px;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+            display: block;
+        }
+
+        .user-trigger:hover { border: 4px solid rgba(112,48,154,0.4); }
+
+        .user-trigger img {
+            height: 28px; width: 28px;
+            display: block;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 170px;
+            background: rgba(10,10,18,0.97);
+            border: 1px solid rgba(112,48,154,0.25);
+            border-radius: 10px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.18s, transform 0.18s;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .user-dropdown::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(176,96,240,0.4), transparent);
+        }
+
+        .user-menu:hover .user-dropdown,
+        .user-menu:focus-within .user-dropdown {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .dropdown-username {
+            font-family: "DM Mono", monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: #d8d8e8;
+        }
+
+        .dropdown-label {
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #505060;
+            margin-top: 2px;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 14px;
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #909090;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: rgba(112,48,154,0.12); color: #d0d0e0; }
+        .dropdown-item.danger { color: #906070; }
+        .dropdown-item.danger:hover { background: rgba(207,80,80,0.08); color: #cf7e7e; }
+
+        .topbar-divider { height: 0.8px; background: #383838be; }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            padding: 22px 28px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header-left { display: flex; align-items: center; gap: 12px; }
+
+        .header-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #70309a;
+            box-shadow: 0 0 8px #70309a;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% { opacity: 1; box-shadow: 0 0 8px #70309a; }
+            50%      { opacity: 0.5; box-shadow: 0 0 3px #70309a; }
+        }
+
+        .page-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: "DM Mono", monospace;
+        }
+
+        .market-badge {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+
+        .market-badge.open   { background: rgba(126,207,142,0.07); border-color: rgba(126,207,142,0.2); color: #7ecf8e; }
+        .market-badge.closed { background: rgba(207,126,126,0.07); border-color: rgba(207,126,126,0.2); color: #cf7e7e; }
+
+        .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .market-badge.open   .badge-dot { background: #7ecf8e; box-shadow: 0 0 6px #7ecf8e; animation: pulse 1.5s ease-in-out infinite; }
+        .market-badge.closed .badge-dot { background: #cf7e7e; }
+
+        /* ── LAYOUT ── */
+        .dashboard {
+            display: flex;
+            gap: 50px;
+            padding: 20px 28px 28px;
+        }
+
+        .left-panel  { flex: 1 1 67%; display: flex; flex-direction: column; gap: 22px; }
+        .right-panel { flex: 1 1 33%; display: flex; flex-direction: column; }
+
+        /* ── CARD ── */
+        .card {
+            background: rgba(9,9,9,0.55);
+            border-radius: 12px;
+            border: 1px solid rgba(112,48,154,0.18);
+            padding: 20px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(176,96,240,0.35), transparent);
+        }
+
+        .card:hover { box-shadow: 0 0 20px rgba(112,48,154,0.15); border-color: rgba(112,48,154,0.32); }
+
+        .card-title {
+            font-family: "DM Mono", monospace;
+            font-size: 9.5px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #707080;
+            margin: 0 0 14px;
+        }
+
+        .card-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(112,48,154,0.4), transparent);
+            margin-bottom: 16px;
+        }
+
+        /* ── STOCK SELECT ── */
+        .stock-select-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stock-select-label {
+            font-family: "DM Mono", monospace;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #707080;
+            white-space: nowrap;
+        }
+
+        select {
+            padding: 9px 32px 9px 12px;
+            border-radius: 6px;
+            border: 0.5px solid #2e2e2e;
+            background: #0f0f0f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b30d4'/%3E%3C/svg%3E") no-repeat right 12px center;
+            color: #c8c8c8;
+            font-family: "DM Sans", sans-serif;
+            font-size: 11px;
+            width: 200px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        select:focus { box-shadow: 0 0 0 2px rgba(112,48,154,0.25); border-color: #70309a; }
+
+        .inner-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(112,48,154,0.3), transparent);
+            margin: 4px 0 18px;
+        }
+
+        /* ── DETAILS GRID ── */
+        .details-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+        .detail-item {
+            background: rgba(15,15,15,0.8);
+            border: 0.5px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        .detail-item:hover { border-color: rgba(112,48,154,0.4); }
+
+        .detail-label {
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #606070;
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            font-family: "DM Mono", monospace;
+            font-size: 15px;
+            color: #d8d8e8;
+            font-weight: 500;
+        }
+
+        /* ── CHART ── */
+        .chart-area {
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15,15,15,0.8);
+            border: 0.5px solid #2a2a2a;
+            border-radius: 8px;
+        }
+
+        .placeholder-text {
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            color: #404050;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .period-btn {
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: .5px solid #2a2a2a;
+            background: transparent;
+            color: #505060;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .period-btn:hover { border-color: rgba(112,48,154,.4); color: #a0a0c0; }
+        .period-btn.active { background: rgba(112,48,154,.15); border-color: rgba(112,48,154,.4); color: #c084fc; }
+
+        /* ── PORTFOLIO TABLE ── */
+        .portfolio-table-wrap {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #1e1e28;
+        }
+
+        .portfolio-table { width: 100%; border-collapse: collapse; }
+
+        .portfolio-table thead tr { background: rgba(112,48,154,0.1); }
+
+        .portfolio-table th {
+            font-family: "DM Mono", monospace;
+            font-size: 8px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #606070;
+            padding: 11px 14px;
+            text-align: left;
+            border-bottom: 1px solid rgba(112,48,154,0.2);
+            white-space: nowrap;
+        }
+
+        .portfolio-table td {
+            padding: 12px 14px;
+            font-family: "DM Mono", monospace;
+            font-size: 11px;
+            color: #d0d0e095;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .portfolio-table tbody tr:last-child td { border-bottom: none; }
+        .portfolio-table tbody tr:hover td { background: rgba(112,48,154,0.07); color: #d0d0e0; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .empty-title {
+            font-family: "DM Mono", monospace;
+            font-size: 10px;
+            color: #3a3a4a;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .empty-btn {
+            margin-top: 4px;
+            padding: 7px 20px;
+            font-family: "DM Mono", monospace;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #9040c0;
+            background: rgba(112,48,154,0.1);
+            border: 1px solid rgba(112,48,154,0.25);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        .empty-btn:hover { background: rgba(112,48,154,0.2); border-color: #70309a; color: #c084fc; }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <img src="{{ url_for('static', filename='images/SA_logo.svg') }}" alt="SmartAlgo">
+            <a href="/">Home</a>
+            <span class="nav-sep">|</span>
+            <a href="/strategy">Strategy</a>
+            <span class="nav-sep">|</span>
+            <a href="/trade">Trade</a>
+            <span class="nav-sep">|</span>
+            <a href="/backtest">Backtest</a>
+        </div>
+
+        <div class="user-menu">
+            <div class="user-trigger" tabindex="0">
+                <img src="{{ url_for('static', filename='images/user.svg') }}" alt="User">
+            </div>
+            <div class="user-dropdown">
+                <div class="dropdown-header">
+                    <div class="dropdown-username">{{ session.username}}</div>
+                    <div class="dropdown-label">Signed in</div>
+                </div>
+                <a href="/history" class="dropdown-item">Trade History</a>
+                <a href="/logout" class="dropdown-item danger">Logout</a>
+            </div>
+        </div>
+    </div>
+    <div class="topbar-divider"></div>
+
+    <div class="page-header">
+        <div class="page-header-left">
+            <div class="header-dot"></div>
+            <h2>Dashboard</h2>
+        </div>
+        <div class="market-badge closed" id="marketBadge">
+            <div class="badge-dot"></div>
+            <span id="marketStatus">Checking...</span>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="left-panel">
+
+            <div class="card">
+                <p class="card-title">Stock Overview</p>
+                <div class="card-divider"></div>
+                <div class="stock-select-row">
+                    <span class="stock-select-label">Stock</span>
+                    <form method="POST" action="/" id="stockForm">
+                        <select name="selected_stock" onchange="document.getElementById('stockForm').submit(); loadChart(activePeriod||'1d')">
+                            {% for stock in stocks %}
+                                <option value="{{ stock }}" {% if stock == selected_stock %}selected{% endif %}>{{ stock }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                <div class="inner-divider"></div>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Price</div>
+                        <div class="detail-value">{{ stock_details.price if stock_details else '—' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Volume</div>
+                        <div class="detail-value">{{ stock_details.volume if stock_details else '—' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Change</div>
+                        <div class="detail-value">{{ stock_details.change if stock_details else '—' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <p class="card-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                  <span>Stock Chart</span>
+                  <span style="display:flex;gap:6px">
+                    <button class="period-btn active" onclick="loadChart('1d')">1D</button>
+                    <button class="period-btn"        onclick="loadChart('5d')">5D</button>
+                    <button class="period-btn"        onclick="loadChart('1mo')">1M</button>
+                  </span>
+                </p>
+                <div class="card-divider"></div>
+                <div style="position:relative;height:220px">
+                  <canvas id="stockChart"></canvas>
+                  <div id="chartLoader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;color:#404050;letter-spacing:.1em;text-transform:uppercase">Loading chart…</div>
+                </div>
+                <div id="chartMeta" style="font-family:'DM Mono',monospace;font-size:9px;color:#404050;margin-top:8px;letter-spacing:.08em;text-align:right"></div>
+            </div>
+
+        </div>
+
+        <div class="right-panel">
+            <div class="card">
+                <p class="card-title">Your Portfolio</p>
+                <div class="card-divider"></div>
+
+                {% if portfolio %}
+                <div class="portfolio-table-wrap">
+                    <table class="portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>Stock</th>
+                                <th>Qty</th>
+                                <th>Buy Price</th>
+                                <th>Buy Time</th>
+                                <th>Strategy</th>
+                                <th>AI Model</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in portfolio %}
+                            <tr>
+                                <td>{{ item[0] }}</td>
+                                <td>{{ item[1] }}</td>
+                                <td>{{ item[2] }}</td>
+                                <td>{{ item[3] }}</td>
+                                <td>{{ item[4] }}</td>
+                                <td>{{ item[5] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-title">No positions yet</div>
+                    <a href="/trade" class="empty-btn">Start Trading →</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+        /* ── MARKET CLOCK ────────────────────────────────────────── */
+        function updateMarket() {
+            const ist  = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+            const mins = ist.getHours() * 60 + ist.getMinutes();
+            const open = ist.getDay() >= 1 && ist.getDay() <= 5 && mins >= 555 && mins < 930;
+            document.getElementById("marketBadge").className = "market-badge " + (open ? "open" : "closed");
+            document.getElementById("marketStatus").textContent = open ? "NSE Open" : "Market Closed";
+        }
+        setInterval(updateMarket, 60000);
+        updateMarket();
+
+        /* ── STOCK CHART ─────────────────────────────────────────── */
+        const SELECTED_STOCK = "{{ selected_stock }}";
+        let chartInst = null;
+        let activePeriod = '1d';
+
+        async function loadChart(period) {
+            activePeriod = period;
+            // Update button states
+            document.querySelectorAll('.period-btn').forEach(b => {
+                b.classList.toggle('active', b.textContent === period.toUpperCase().replace('MO','M').replace('1D','1D').replace('5D','5D'));
+            });
+            const loader = document.getElementById('chartLoader');
+            const meta   = document.getElementById('chartMeta');
+            loader.style.display = 'flex';
+            loader.textContent   = 'Loading…';
+
+            try {
+                const r   = await fetch(`/api/chart_data?stock=${SELECTED_STOCK}&period=${period}`);
+                const d   = await r.json();
+                if (d.error || !d.labels || d.labels.length === 0) {
+                    loader.textContent = 'No data available';
+                    return;
+                }
+                loader.style.display = 'none';
+
+                // Format labels
+                const labels = d.labels.map(l => {
+                    const dt = new Date(l);
+                    if (period === '1d') return dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+                    if (period === '1mo') return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+                    return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) + ' ' +
+                           dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+                });
+
+                const first = d.close[0], last = d.close[d.close.length-1];
+                const isUp  = last >= first;
+                const clr   = isUp ? '#7ecf8e' : '#cf7e7e';
+                const clrFade = isUp ? 'rgba(126,207,142,0.08)' : 'rgba(207,126,126,0.08)';
+                const chg   = ((last-first)/first*100).toFixed(2);
+
+                meta.textContent = `${SELECTED_STOCK}  ₹${last.toFixed(2)}  ${isUp?'+':''}${chg}%  (${period.toUpperCase()})`;
+                meta.style.color = isUp ? '#7ecf8e' : '#cf7e7e';
+
+                if (chartInst) chartInst.destroy();
+
+                const ctx = document.getElementById('stockChart').getContext('2d');
+                chartInst = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: SELECTED_STOCK,
+                            data: d.close,
+                            borderColor: clr,
+                            borderWidth: 1.5,
+                            pointRadius: 0,
+                            fill: true,
+                            backgroundColor: clrFade,
+                            tension: 0.3,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 400 },
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(10,10,18,.95)',
+                                borderColor: 'rgba(112,48,154,.3)',
+                                borderWidth: 1,
+                                titleColor: '#606070',
+                                bodyColor: '#d8d8e8',
+                                titleFont: { family: 'DM Mono', size: 9 },
+                                bodyFont:  { family: 'DM Mono', size: 11 },
+                                callbacks: {
+                                    label: ctx => '₹ ' + ctx.parsed.y.toFixed(2)
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#404050',
+                                    font: { family: 'DM Mono', size: 8 },
+                                    maxTicksLimit: 8,
+                                    maxRotation: 0,
+                                },
+                                grid: { color: 'rgba(255,255,255,0.03)' },
+                                border: { color: '#1e1e28' }
+                            },
+                            y: {
+                                position: 'right',
+                                ticks: {
+                                    color: '#404050',
+                                    font: { family: 'DM Mono', size: 8 },
+                                    callback: v => '₹'+v.toFixed(0)
+                                },
+                                grid: { color: 'rgba(255,255,255,0.03)' },
+                                border: { color: '#1e1e28' }
+                            }
+                        }
+                    }
+                });
+            } catch(e) {
+                loader.textContent = 'Chart error';
+                console.error(e);
+            }
+        }
+
+        // Load chart on page ready
+        document.addEventListener('DOMContentLoaded', () => loadChart('1d'));
+    </script>
+
+</body>
+</html>

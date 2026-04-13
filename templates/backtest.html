@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><title>SmartAlgo – Backtest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:url('https://t3.ftcdn.net/jpg/08/89/06/96/240_F_889069646_XTuR4M8GJfeltGTOcUSihJBkWpdPaPCm.jpg') no-repeat center center fixed;background-size:cover;color:#b8b8b8;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;backdrop-filter:blur(8px);z-index:-1}
+.topbar{background:rgba(0,0,0,.92);backdrop-filter:blur(12px);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(112,48,154,.2)}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.topbar-left img{height:38px;width:38px;object-fit:contain;margin-right:16px;filter:drop-shadow(0 0 6px rgba(176,96,240,.4))}
+.nav-sep{color:#383838be;font-size:12px}
+.topbar-left a{color:#909090;text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:4px;transition:.2s}
+.topbar-left a:hover,.topbar-left a.active{color:#fff;background:rgba(112,48,154,.18)}
+.user-menu{position:relative}
+.user-trigger{cursor:pointer;border-radius:50%;border:1px solid transparent;transition:.2s;display:block}
+.user-trigger:hover{border-color:rgba(112,48,154,.4)}
+.user-trigger img{height:28px;width:28px;border-radius:50%;border:1px solid #383838be;display:block}
+.user-dropdown{position:absolute;top:calc(100% + 10px);right:0;min-width:170px;background:rgba(10,10,18,.97);border:1px solid rgba(112,48,154,.25);border-radius:10px;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-6px);transition:.18s;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.user-dropdown::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(176,96,240,.4),transparent)}
+.user-menu:hover .user-dropdown,.user-menu:focus-within .user-dropdown{opacity:1;pointer-events:auto;transform:translateY(0)}
+.dropdown-header{padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
+.dropdown-username{font-family:"DM Mono",monospace;font-size:11px;font-weight:500;color:#d8d8e8}
+.dropdown-label{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#505060;margin-top:2px}
+.dropdown-item{display:block;padding:10px 14px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#909090;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.03);transition:.15s}
+.dropdown-item:last-child{border-bottom:none}
+.dropdown-item:hover{background:rgba(112,48,154,.12);color:#d0d0e0}
+.dropdown-item.danger{color:#906070}
+.dropdown-item.danger:hover{background:rgba(207,80,80,.08);color:#cf7e7e}
+.topbar-divider{height:.8px;background:#383838be}
+.page-header{padding:22px 28px 12px;display:flex;align-items:center;gap:12px}
+.page-header h2{margin:0;color:#fff;font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-family:"DM Mono",monospace}
+.header-dot{width:6px;height:6px;border-radius:50%;background:#70309a;box-shadow:0 0 8px #70309a;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px #70309a}50%{opacity:.5;box-shadow:0 0 3px #70309a}}
+.content{padding:0 28px 28px;display:flex;gap:40px;align-items:flex-start}
+.card{background:rgba(9,9,9,.55);border-radius:12px;border:1px solid rgba(112,48,154,.18);padding:20px;position:relative;overflow:hidden;transition:.3s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(176,96,240,.35),transparent)}
+.card:hover{box-shadow:0 0 20px rgba(112,48,154,.12);border-color:rgba(112,48,154,.28)}
+.card-title{font-family:"DM Mono",monospace;font-size:9.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#707080;margin-bottom:14px}
+.card-divider{height:1px;background:linear-gradient(90deg,rgba(112,48,154,.4),transparent);margin-bottom:18px}
+.form-card{flex:0 0 360px}
+.result-card{flex:1;align-self:flex-start}
+label{display:block;font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#606070;margin-bottom:7px;margin-top:18px}
+label:first-of-type{margin-top:0}
+select{width:100%;padding:9px 12px;border:.5px solid #2a2a2a;border-radius:6px;background:#0f0f0f;color:#c8c8c8;font-family:"DM Sans",sans-serif;font-size:12px;outline:none;transition:.2s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b30d4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select:focus{border-color:rgba(112,48,154,.5);box-shadow:0 0 0 2px rgba(112,48,154,.12)}
+.btn-run{width:100%;margin-top:26px;padding:12px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;background:#70309a;border:none;border-radius:6px;color:#fff;cursor:pointer;transition:.3s}
+.btn-run:hover{box-shadow:0 0 28px rgba(112,48,154,.5);background:#8040b0}
+.result-block{background:rgba(12,12,18,.8);border:.5px solid #2a2a2a;border-radius:8px;padding:18px;position:relative}
+.result-block::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:linear-gradient(180deg,#7c22d4,#c084fc);border-radius:8px 0 0 8px}
+.result-text{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.03em;color:#a0a0b0;line-height:2;white-space:pre-wrap;padding-left:12px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="{{ url_for('static',filename='images/SA_logo.svg') }}" alt="SmartAlgo">
+    <a href="/">Home</a><span class="nav-sep">|</span>
+    <a href="/strategy">Strategy</a><span class="nav-sep">|</span>
+    <a href="/trade">Trade</a><span class="nav-sep">|</span>
+    <a href="/backtest" class="active">Backtest</a>
+  </div>
+  <div class="user-menu">
+    <div class="user-trigger" tabindex="0">
+      <img src="{{ url_for('static',filename='images/user.svg') }}" alt="User">
+    </div>
+    <div class="user-dropdown">
+      <div class="dropdown-header">
+        <div class="dropdown-username">{{ session.username }}</div>
+        <div class="dropdown-label">Signed in</div>
+      </div>
+      <a href="/history" class="dropdown-item">Trade History</a>
+      <a href="/logout" class="dropdown-item danger">Logout</a>
+    </div>
+  </div>
+</div>
+<div class="topbar-divider"></div>
+
+<div class="page-header">
+  <div class="header-dot"></div>
+  <h2>Backtesting</h2>
+</div>
+
+<div class="content">
+  <div class="card form-card">
+    <p class="card-title">Run Backtest</p>
+    <div class="card-divider"></div>
+    <form method="POST">
+      <label>Stock</label>
+      <select name="stock">{% for s in stocks %}<option>{{s}}</option>{% endfor %}</select>
+      <label>Strategy</label>
+      <select name="strategy">{% for s in strategies %}<option>{{s[0]}}</option>{% endfor %}</select>
+      <label>AI / ML Model</label>
+      <select name="ai_model">{% for m in ai_models %}<option>{{m}}</option>{% endfor %}</select>
+      <button type="submit" class="btn-run">Run Backtest</button>
+    </form>
+  </div>
+
+  {% if result %}
+  <div class="card result-card">
+    <p class="card-title">Backtest Results</p>
+    <div class="card-divider"></div>
+    <div class="result-block">
+      <p class="result-text">{{ result }}</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>
